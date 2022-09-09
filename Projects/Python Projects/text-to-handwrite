@@ -1,0 +1,11 @@
+import pywhatkit as kit
+from PIL import Image
+
+# Taking input from user
+handwritten = input("Text to convert: ")
+
+# converting handwritten and saving
+kit.text_to_handwriting(handwritten, save_to="clcoding.png")
+
+# to open image
+Image.open("clcoding.png")
