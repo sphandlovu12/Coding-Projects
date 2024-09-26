@@ -1,0 +1,2 @@
+This is a full-stack python web application that I made to upload some of the games I made using pygame. I upload the files to the site so I can display and pick and play on the site.
+The web app will use Django for the backend and Flask for handling file uploads and serving the Pygame files.

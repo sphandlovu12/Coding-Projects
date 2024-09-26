@@ -1,0 +1,97 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pygame Website{% endblock %}</title>
+    <link rel="stylesheet" href="{{ static('css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Pygame Website</h1>
+        <nav>
+            <a href="{% url 'game_list' %}">Home</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Pygame Website</p>
+    </footer>
+</body>
+</html>
+
+<!-- templates/game_list.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Game List{% endblock %}
+
+{% block content %}
+    <h2>Upload a new game</h2>
+    <form action="/flask/upload" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".py,.zip" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Available Games</h2>
+    <ul>
+        {% for game in games %}
+            <li>
+                <a href="{% url 'play_game' game.id %}">{{ game.title }}</a>
+                <span>Uploaded: {{ game.uploaded_at|date:"F d, Y" }}</span>
+            </li>
+        {% empty %}
+            <li>No games available.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+<!-- templates/play_game.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Play {{ game.title }}{% endblock %}
+
+{% block content %}
+    <h2>{{ game.title }}</h2>
+    <div id="game-container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.9.0/brython_stdlib.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            brython({debug: 1, pythonpath: ["/flask/game/{{ game.file.name }}"]});
+        })
+    </script>
+    <script type="text/python">
+        import pygame
+        import sys
+        import js
+
+        # Initialize Pygame
+        pygame.init()
+
+        # Set up the display
+        width, height = 800, 600
+        screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("{{ game.title }}")
+
+        # Main game loop
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # Your game logic here
+
+            pygame.display.flip()
+
+        pygame.quit()
+        sys.exit()
+    </script>
+{% endblock %}
